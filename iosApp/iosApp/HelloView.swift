@@ -5,11 +5,14 @@ import shared
 
 struct HelloView: View {
     
-    @StateViewModel var viewModel: HelloViewModel
+    @StateViewModel private var viewModel: HelloViewModel
+    private let onNextClick: (Int) -> Void
+    private let onDetailClick: (DetailArgs) -> Void
     
-    
-    init(id: Int) {
+    init(id: Int, onNextClick: @escaping (Int) -> Void, onDetailClick: @escaping (DetailArgs) -> Void) {
         self._viewModel = StateViewModel(wrappedValue: HelloViewModel(id: Int32(id)))
+        self.onNextClick = onNextClick
+        self.onDetailClick = onDetailClick
     }
     
     var body: some View {
@@ -18,21 +21,14 @@ struct HelloView: View {
             Text("Haiku of The Day").font(.headline)
             Text("\(viewModel.viewState.haiku)")
             
-            NavigationLink(
-                "Next screen",
-                destination: HelloView(id: Int(viewModel.viewState.id) + 1)
-            )
-            
-            NavigationLink(
-                "Detail",
-                destination: DetailView(args: DetailArgs(text: viewModel.viewState.haiku))
-            )
+            Button("Next screen", action: { onNextClick(Int(viewModel.viewState.id) + 1)})
+            Button("Detail", action: { onDetailClick(DetailArgs(text: viewModel.viewState.haiku))})
         }
     }
 }
 
 struct HelloView_Previews: PreviewProvider {
     static var previews: some View {
-        HelloView(id: 0)
+        HelloView(id: 0, onNextClick: {_ in}, onDetailClick: {_ in})
     }
 }
